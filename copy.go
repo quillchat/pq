@@ -183,6 +183,7 @@ func (ci *copyin) setBad() {
 func (ci *copyin) isBad() bool {
 	ci.Lock()
 	b := ci.cn.getBad()
+	ci.Unlock()
 	return b
 }
 
