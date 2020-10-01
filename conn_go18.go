@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"sync/atomic"
 	"time"
 )
 
@@ -93,6 +94,9 @@ func (cn *conn) watchCancel(ctx context.Context) func() {
 		go func() {
 			select {
 			case <-done:
+				// Set the connection state to bad so it does not get reused.
+				cn.setBad()
+
 				// At this point the function level context is canceled,
 				// so it must not be used for the additional network
 				// request to cancel the query.
@@ -123,8 +127,11 @@ func (cn *conn) cancel(ctx context.Context) error {
 	defer c.Close()
 
 	{
+		bad := &atomic.Value{}
+		bad.Store(false)
 		can := conn{
-			c: c,
+			c:   c,
+			bad: bad,
 		}
 		err = can.ssl(cn.opts)
 		if err != nil {
