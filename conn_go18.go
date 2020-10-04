@@ -113,7 +113,6 @@ func (cn *conn) watchCancel(ctx context.Context) func() {
 				defer cancel()
 
 				_ = cn.cancel(ctxCancel)
-				// Don't block on this if the return function finished already.
 			case <-finished:
 			}
 		}()
@@ -121,6 +120,8 @@ func (cn *conn) watchCancel(ctx context.Context) func() {
 			select {
 			case <-finished:
 				// If we got cancelled, close the connection.
+				// Set the connection state to bad so it does not get reused.
+				cn.setBad()
 				cn.Close()
 			case finished <- struct{}{}:
 			}
