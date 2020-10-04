@@ -177,6 +177,10 @@ func TestIssue617(t *testing.T) {
 			}
 		}()
 	}
+
+	// Give time for goroutines to terminate
+	time.Sleep(time.Millisecond * 50)
+
 	numGoroutineFinish := runtime.NumGoroutine()
 
 	// We use N/2 and not N because the GC and other actors may increase or
