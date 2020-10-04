@@ -90,7 +90,7 @@ func (cn *conn) Ping(ctx context.Context) error {
 
 func (cn *conn) watchCancel(ctx context.Context) func() {
 	if done := ctx.Done(); done != nil {
-		finished := make(chan struct{}, 1)
+		finished := make(chan struct{})
 		go func() {
 			select {
 			case <-done:
