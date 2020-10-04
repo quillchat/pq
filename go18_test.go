@@ -3,6 +3,7 @@ package pq
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"runtime"
 	"strings"
 	"testing"
@@ -142,7 +143,7 @@ func TestContextCancelQuery(t *testing.T) {
 			cancel()
 			if err != nil {
 				t.Fatal(err)
-			} else if err := rows.Close(); err != nil {
+			} else if err := rows.Close(); err != nil && err != driver.ErrBadConn {
 				t.Fatal(err)
 			}
 		}()
@@ -228,7 +229,7 @@ func TestContextCancelBegin(t *testing.T) {
 				t.Fatal(err)
 			} else if err := tx.Rollback(); err != nil &&
 				err.Error() != "pq: canceling statement due to user request" &&
-				err != sql.ErrTxDone {
+				err != sql.ErrTxDone && err != driver.ErrBadConn {
 				t.Fatal(err)
 			}
 		}()
